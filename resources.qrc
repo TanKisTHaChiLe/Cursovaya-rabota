@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/Tick.svg</file>
+        <file>images/Timer.svg</file>
+        <file>images/Warning.svg</file>
+        <file>fonts/Roboto_Condensed-Regular.ttf</file>
+        <file>fonts/Roboto_SemiCondensed-Medium.ttf</file>
+        <file>Components/FormExit.qml</file>
+        <file>Components/AuthorizationForm.qml</file>
+        <file>images/Danger.svg</file>
+        <file>images/Table.svg</file>
+        <file>images/add.svg</file>
+        <file>images/addFilterDarkTheme.svg</file>
+        <file>images/addFilterLightTheme.svg</file>
+        <file>images/magnifier.svg</file>
+        <file>Components/Page.qml</file>
+        <file>images/Logo.svg</file>
+        <file>Main.qml</file>
+        <file>Components/Theme.qml</file>
+        <file>Components/AuthorisationForm2.qml</file>
+    </qresource>
+</RCC>
