@@ -18,5 +18,13 @@
         <file>Main.qml</file>
         <file>Components/Theme.qml</file>
         <file>Components/AuthorisationForm2.qml</file>
+        <file>Components/UserSession.qml</file>
+        <file>Components/AddClient.qml</file>
+        <file>images/CloseDarkTheme.svg</file>
+        <file>images/CloseLightTheme.svg</file>
+        <file>images/DiscretDarkTheme.svg</file>
+        <file>images/DiscretLightTheme.svg</file>
+        <file>images/EndDarkTheme.svg</file>
+        <file>images/EndLightTheme.svg</file>
     </qresource>
 </RCC>

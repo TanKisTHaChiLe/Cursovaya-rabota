@@ -2,17 +2,17 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import AppTheme 1.0
+import com.example 1.0
 import "."
 import ".."
 
 Rectangle {
     id:page
-    width: 1200
-    height: 700
+    width: 1200*scaleFactor
+    height: 700*scaleFactor
     property real originalWidth: 1200
     property real originalHeight: 700
     property real scaleFactor: Math.min(width / originalWidth, height / originalHeight)
-    //property bool isDarkTheme: Theme.isDarkTheme
     property color body_Background: Theme.isDarkTheme ? "#111827" : "#F2F4F4"
     property color block_Background: Theme.isDarkTheme ? "#1F2937" :  "#FFFFFF"
     color: body_Background
@@ -56,7 +56,7 @@ Rectangle {
 
             Text {
                 id: name
-                text: qsTr("Иван Петров")
+                text: qsTr(UserSession.username)
                 anchors.top: parent.top
                 anchors.topMargin: 20
                 anchors.right: parent.right
@@ -225,6 +225,9 @@ Rectangle {
                     }
                     onExited: {
                         parent.color = parent.buttonColor
+                    }
+                    onClicked: {
+                        stackView.push(add_client)
                     }
                 }
                 Image {
@@ -432,6 +435,7 @@ Rectangle {
                 onExited: {
                     parent.border.width = 0
                 }
+
             }
             RowLayout {
                 id: client_content

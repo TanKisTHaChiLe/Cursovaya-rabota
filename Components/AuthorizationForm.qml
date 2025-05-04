@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import AppTheme 1.0
 import CRM.Database 1.0
+import com.example 1.0
 import "."
 import ".."
 
@@ -29,17 +30,6 @@ Rectangle {
               errorText.text = "Неверный email или пароль"
           }
       }
-   // DatabaseManager {
-   //      id: dbManager
-   //      onLoginSuccess: {
-   //          console.log("Успешный вход! ID пользователя:")
-   //          stackView.replace(page1) // Переход на главную страницу после входа
-   //      }
-   //      onLoginFailed: {
-   //          errorText.visible = true
-   //          errorText.text = "Неверный email или пароль"
-   //      }
-   //  }
     Rectangle {
         id: authorisation_form
         anchors.centerIn: parent
@@ -108,7 +98,7 @@ Rectangle {
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.leftMargin: 6
-                text: qsTr("Электронная почта")
+                text: qsTr("Логин")
                 color:Theme.isDarkTheme ? "#D1D5DB" : "#374151"
                 font.weight: 500
                 font.pixelSize: 14*scaleFactor
@@ -212,18 +202,21 @@ Rectangle {
 
                     // Валидация полей
                     if (email.text.trim() === "") {
-                        errorText.text = "Введите email"
-                        errorText.visible = true
+                        holder1.text = "Введите Логин"
+                        email.text.color = "red"
+                        email_container.border.color = "red"
                         return
                     }
 
                     if (password.text.trim() === "") {
-                        errorText.text = "Введите пароль"
-                        errorText.visible = true
+                        password_container.border.color = "red"
+                        holder2.text = "Введите пароль"
+                        password.text.color = "red"
                         return
                     }
 
                     // Вызов авторизации
+                    UserSession.username = email.text;
                     dbManager.authenticateUser(email.text, password.text)
                 }
             }

@@ -83,7 +83,7 @@ Rectangle {
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.leftMargin: 6
-                text: qsTr("Электронная почта")
+                text: qsTr("Логин")
                 color:Theme.isDarkTheme ? "#D1D5DB" : "#374151"
                 font.weight: 500
                 font.pixelSize: 14*scaleFactor
@@ -184,6 +184,9 @@ Rectangle {
                     font.pixelSize: 14*scaleFactor
                     color:Theme.isDarkTheme ? "#D1D5DB" : "#374151"
                 }
+                MouseArea {
+
+                }
             }
         }
         Rectangle{
@@ -210,12 +213,21 @@ Rectangle {
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
-                    const userId = DatabaseManager.registerUser(email.text, password.text);
-                    console.log(email.text, password.text,userId)
-                    if (userId) {
-                        stackView.pop();
-                    } else {
-                        errorLabel.text = "Ошибка авторизации, пользователь с таким именем уже существует";
+                    if(password.text==password2.text){
+                        const userId = DatabaseManager.registerUser(email.text, password.text);
+                        console.log(email.text, password.text,userId)
+                        if (userId) {
+                            stackView.pop();
+                        } else {
+                            holder1.text = "Ошибка, пользователь с таким именем уже существует";
+                            holder1.color = "red"
+                            email_container.border.color = "red"
+
+                        }
+                    }else{
+                        password_container2.border.color = "red"
+                        holder3.text= "Пароль не совпадает"
+                        holder3.color = "red"
                     }
                 }
             }
@@ -225,19 +237,6 @@ Rectangle {
               id: errorLabel
               color: "red"
           }
-       //  Button {
-       //     text: "Войти"
-       //     onClicked: {
-
-       //         const userId = DatabaseManager.registerUser(email.text, password.text);
-       //         console.log(email.text, password.text,userId)
-       //         if (userId) {
-       //             stackView.pop();
-       //         } else {
-       //             errorLabel.text = "Ошибка авторизации";
-       //         }
-       //     }
-       // }
 
     }
 

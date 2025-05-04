@@ -95,6 +95,7 @@ qt_add_qml_module(appCRM-system
         Components/Page.qml
         Components/Theme.qml
         Components/AuthorisationForm2.qml
+        Components/AddClient.qml
     RESOURCES resources.qrc
 )
 

@@ -39,6 +39,11 @@ Window {
         Pages.AuthorisationForm2{}
     }
 
+    Component {
+        id: add_client
+        Pages.AddClient{}
+    }
+
     onClosing: {
         console.log("Приложение закрывается, выполняем выход");
         DatabaseManager.forceLogout();

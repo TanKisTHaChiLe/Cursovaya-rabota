@@ -51,15 +51,14 @@ Item {
                 }
 
                 Switch {
-                     id: theme_switch
-                     //anchors.top:  parent.top
-                      anchors.verticalCenter: parent.verticalCenter
-                    // anchors.topMargin: 14
-                     anchors.right:parent.right
-                     anchors.rightMargin: 9
-                     onClicked: {
-                         Theme.isDarkTheme = !Theme.isDarkTheme
-                     }
+                    id: theme_switch
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.right:parent.right
+                    anchors.rightMargin: 9
+                    onClicked: {
+                        Theme.isDarkTheme = !Theme.isDarkTheme
+                    }
+
                 }
                 Rectangle {
                       height: 1 // Высота нижней границы
@@ -86,6 +85,8 @@ Item {
                 }
                 MouseArea {
                     anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
                     onClicked:{
                         popup_exit.show()
                     }
