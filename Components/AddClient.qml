@@ -2,11 +2,14 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import AppTheme 1.0
+import CRM.Database 1.0
+
+
 import "."
 Rectangle {
     id: add_client_form
-    width: 1200*scaleFactor
-    height: 700*scaleFactor
+    // width: 1200*scaleFactor
+    // height: 700*scaleFactor
     visible: true
     property real originalWidth: 1200
     property real originalHeight: 700
@@ -14,6 +17,9 @@ Rectangle {
     property real scaleWidth: 1200/1440
     property real scaleHeight: 700/1024
     color: Theme.isDarkTheme ? "#111827" : "#F2F4F4"
+
+    signal saveClient(var clientData)
+
     Rectangle {
         id: add_client_form_container
         color: Theme.isDarkTheme ? "#111827" : "#F2F4F4"
@@ -47,14 +53,88 @@ Rectangle {
                 height: 38*scaleFactor*scaleHeight
                 width: 125*scaleFactor*scaleWidth
                 color: Theme.isDarkTheme ? "#1F2937" : "#2563EB"
+                // MouseArea {
+                //     anchors.fill: parent
+                //     hoverEnabled: true
+                //     cursorShape: Qt.PointingHandCursor
+                //     onClicked: {
+                //         stackView.pop();
+                //     }
+                // }
                 MouseArea {
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        stackView.pop();
+                        // Подготовка данных в формате, соответствующем SQL-запросу
+                        var clientData = {
+                            // Основная информация
+                            fullName: input_name.text,
+                            phone: input_name2.text,
+                            inn: input_name3.text,
+                            activityType: input_name4.text,
+                            startDate: input_name5.text,  // Ожидается формат "dd.MM.yyyy"
+
+                            // Налоговая информация
+                            taxationMode: comboBox1.currentText,
+                            ppsn: input_name7.text,
+
+                            // Числовые данные
+                            employees: input_name8.text || 0,
+
+                            // Дополнительная информация
+                            kkt: input_name9.text,
+
+                            // Платежная информация
+                            paymentFrequency: comboBox.currentText,
+                            //paymentAmount: input_name11.text,
+                            individualAccount: input_name12.text || 0,
+
+                            // Квартальные платежи
+                            q1: input_q1.text || "0",  // Значения по умолчанию, если поля пустые
+                            q2: input_q2.text || "0",
+                            q3: input_q3.text || "0",
+                            q4: input_q4.text || "0",
+
+                            // Месячные
+                            jan: input_jan.text || "0",
+                            feb: input_feb.text || "0",
+                            march: input_march.text || "0",
+                            apr: input_apr.text || "0",
+                            may: input_may.text || "0",
+                            jun: input_jun.text || "0",
+                            jul: input_jul.text || "0",
+                            aug: input_aug.text || "0",
+                            sep: input_sep.text || "0",
+                            oct: input_oct.text || "0",
+                            nov: input_nov.text || "0",
+                            dec: input_dec.text || "0"
+                        };
+
+                        // Валидация обязательных полей
+                        if (!clientData.fullName || !clientData.phone || !clientData.inn) {
+                            console.error("Обязательные поля не заполнены!");
+                            return;
+                        }
+
+                        // Проверка формата даты
+                        var dateRegex = /^\d{2}\.\d{2}\.\d{4}$/;
+                        if (!dateRegex.test(clientData.startDate) && clientData.startDate.length!==0) {
+                            console.error("Некорректный формат даты! Используйте dd.MM.yyyy");
+                            return;
+                        }
+
+                        // Отправка данных в C++ метод
+                        var result = DatabaseManager.saveClient(clientData);
+                        console.log("Результат сохранения:", result);
+                        if (result) stackView.pop();
+
+                        // add_client_form.saveClient(clientData);
+                        // console.log(add_client_form.saveClient(clientData))
+                        // stackView.pop();
                     }
                 }
+
                 Rectangle{
                     anchors.centerIn: parent
                     width: save_batton_text.width+7+save_batton_image.width

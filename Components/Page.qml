@@ -8,8 +8,8 @@ import ".."
 
 Rectangle {
     id:page
-    width: 1200*scaleFactor
-    height: 700*scaleFactor
+    // width: 1200*scaleFactor
+    // height: 700*scaleFactor
     property real originalWidth: 1200
     property real originalHeight: 700
     property real scaleFactor: Math.min(width / originalWidth, height / originalHeight)

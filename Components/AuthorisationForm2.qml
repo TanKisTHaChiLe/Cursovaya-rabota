@@ -9,8 +9,8 @@ import ".."
 Rectangle {
     id: authorisation
     color: Theme.isDarkTheme ? "#111827" : "#F9FAFB"
-    width: 1200*scaleFactor
-    height: 700*scaleFactor
+    // width: 1200*scaleFactor
+    // height: 700*scaleFactor
     visible: false
     property real originalWidth: 1200
     property real originalHeight: 700
@@ -184,9 +184,7 @@ Rectangle {
                     font.pixelSize: 14*scaleFactor
                     color:Theme.isDarkTheme ? "#D1D5DB" : "#374151"
                 }
-                MouseArea {
 
-                }
             }
         }
         Rectangle{

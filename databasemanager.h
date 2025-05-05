@@ -193,8 +193,9 @@ public:
     Q_INVOKABLE void logoutUser();
 
     // Методы клиентов
-    Q_INVOKABLE bool addClient(int userId, const QVariantMap &clientData);
+    // Q_INVOKABLE bool addClient(int userId, const QVariantMap &clientData);
     Q_INVOKABLE QVariantList getClients(int userId);
+    Q_INVOKABLE bool saveClient(const QVariantMap &clientData);
 
 signals:
     void connectionChanged(bool connected);
@@ -204,6 +205,7 @@ signals:
     void loginFailed(const QString &error);
     void logoutSuccess();
     void connectionError(const QString &errorMessage);
+    void clientSaved(bool success);  // Новый сигнал
 
 public slots:
     void forceLogout();
