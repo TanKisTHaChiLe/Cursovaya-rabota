@@ -3,13 +3,12 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import AppTheme 1.0
 import com.example 1.0
+import CRM.Database 1.0
 import "."
 import ".."
 
 Rectangle {
     id:page
-    // width: 1200*scaleFactor
-    // height: 700*scaleFactor
     property real originalWidth: 1200
     property real originalHeight: 700
     property real scaleFactor: Math.min(width / originalWidth, height / originalHeight)
@@ -52,7 +51,6 @@ Rectangle {
             anchors.rightMargin: 32
             height: name.height + 40
             color:parent.color
-
 
             Text {
                 id: name
@@ -134,15 +132,7 @@ Rectangle {
                    target: Theme // Слушаем изменения в синглтоне!
                    function onIsDarkThemeChanged(){ table_button.calculateButtonColor()}
                }
-                // Component.onCompleted: {
-                //     calculateButtonColor()
-                // }
-                // Connections {
-                //     target: page
-                //     onIsDarkThemeChanged: {
-                //         table_button.calculateButtonColor()
-                //     }
-                // }
+
                 Behavior on color {
                     ColorAnimation { duration: 250 }
                 }
@@ -204,15 +194,7 @@ Rectangle {
                    target: Theme // Слушаем изменения в синглтоне!
                    function onIsDarkThemeChanged(){ push_client_button.calculateButtonColor()}
                }
-                // Component.onCompleted: {
-                //     calculateButtonColor()
-                // }
-                // Connections {
-                //     target: page
-                //     onIsDarkThemeChanged: {
-                //         push_client_button.calculateButtonColor()
-                //     }
-                // }
+
                 Behavior on color {
                     ColorAnimation { duration: 250 }
                 }
@@ -279,15 +261,6 @@ Rectangle {
                    target: Theme // Слушаем изменения в синглтоне!
                    function onIsDarkThemeChanged(){ filter_button.calculateButtonColor()}
                }
-                // Component.onCompleted: {
-                //     calculateButtonColor()
-                // }
-                // Connections {
-                //     target: page
-                //     onIsDarkThemeChanged: {
-                //         filter_button.calculateButtonColor()
-                //     }
-                // }
                 Behavior on color {
                     ColorAnimation { duration: 250 }
                 }
@@ -397,147 +370,189 @@ Rectangle {
             }
         }
     }
-    ColumnLayout {
+    Connections {
+        target: DatabaseManager
+        onClientsUpdated: {
+                // Здесь вы можете вызвать метод для обновления списка клиентов
+                clientsListView.model = DatabaseManager.getClients(DatabaseManager.currentUserId);
+            }
+    }
 
-        id: list_clients
+    ListView {
+        id: clientsListView
+        anchors {
+            top: top_bar.bottom
+            topMargin: 24
+            left: parent.left
+            leftMargin: 32
+            right: parent.right
+            rightMargin: 32
+            bottom: parent.bottom
+        }
+        clip: true
         spacing: 20
-        anchors.top: top_bar.bottom
-        anchors.topMargin: 24
-        anchors.left: parent.left
-        anchors.leftMargin: 32
-        anchors.right: parent.right
-        anchors.rightMargin: 32
-        Rectangle {
-            id: client
-            height: client_content.height
-            Layout.fillWidth: true
-            color: block_Background
-            Behavior on color {
-                ColorAnimation {
-                    duration: 250
-                }
-            }
-            border.width: 0
-            border.color: "#6B7280"
-            radius: 8
-            Behavior on border.width {
-                NumberAnimation {
-                    duration: 100
-                }
-            }
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onEntered: {
-                    parent.border.width = 1.5
-                }
-                onExited: {
-                    parent.border.width = 0
-                }
+        model: DatabaseManager.getClients(DatabaseManager.currentUserId)
+        delegate:
+            Rectangle {
+                       id: client
+                       height: client_content.height
+                       width: clientsListView.width
+                       Layout.fillWidth: true
+                       color: block_Background
+                       Behavior on color {
+                           ColorAnimation {
+                               duration: 250
+                           }
+                       }
+                       border.width: 0
+                       border.color: "#6B7280"
+                       radius: 8
+                       Behavior on border.width {
+                           NumberAnimation {
+                               duration: 100
+                           }
+                       }
+                       MouseArea {
+                           anchors.fill: parent
+                           hoverEnabled: true
+                           cursorShape: Qt.PointingHandCursor
+                           onEntered: {
+                               parent.border.width = 1.5
+                           }
+                           onExited: {
+                               parent.border.width = 0
+                           }
 
-            }
-            RowLayout {
-                id: client_content
-                anchors {
-                    left: parent.left
-                    leftMargin: 24
-                    top: parent.top
-                    right: parent.right
-                    rightMargin: 24
-                    }
-                height: client_content_data.height + 48*scaleFactor
-                ColumnLayout {
-                    id: client_content_data
-                    spacing: 5*scaleFactor
-                    Text {
-                        id: client_content_data_name
-                        text: qsTr("Александр Иванов")
-                        font.weight: 500
-                        font.pixelSize: 20*scaleFactor
-                        font.family: "fonts/Roboto_SemiCondensed-Medium.ttf"
-                        color: Theme.isDarkTheme ? "#FFFFFF" : "#000000"
-                        Behavior on color {
-                            ColorAnimation {
-                                duration: 250
-                            }
-                        }
-                    }
-                    Text {
-                        id: client_content_data_company
-                        text: qsTr("ООО Технопром")
-                        font.weight: 400
-                        font.pixelSize: 16*scaleFactor
-                        lineHeight: 1.2
-                        color: Theme.isDarkTheme ? "#9CA3AF" : "#4B5563"
-                        Behavior on color {
-                            ColorAnimation {
-                                duration: 250
-                            }
-                        }
-                        font.family: "fonts/Roboto_Condensed-Regular.ttf"
-                    }
-                    RowLayout {
-                        id:client_content_data_filter_list
-                        height: client_content_data_filter_item.height
-                        Rectangle {
-                            id: client_content_data_filter_item
-                            implicitHeight: client_content_data_filter_item_filter.height+ 5*scaleFactor
-                            implicitWidth: client_content_data_filter_item_filter.width + 20*scaleFactor
-                            radius: 9999
-                            color: "#DBEAFE"
-                            Text {
-                                id: client_content_data_filter_item_filter
-                                text: qsTr("IT услуги")
-                                font.weight: 500
-                                font.pixelSize: 12*scaleFactor
-                                anchors.top: parent.top
-                                anchors.topMargin: 2*scaleFactor
-                                anchors.left: parent.left
-                                anchors.leftMargin: 10*scaleFactor
-                                color: "#1E40AF"
-                                font.family: "fonts/Roboto_SemiCondensed-Medium.ttf"
-                            }
-                        }
-                    }
-                }
-                Rectangle {
-                    id: pay_indicator
-                    //anchors.right: client_content.right
-                    Layout.alignment: Qt.AlignRight
-                    // Вместо height и width писать те же свойства, но implicit
-                    implicitHeight: pay_indicator_text.height + 16*scaleFactor
-                    implicitWidth: pay_indicator_text.width + 30*scaleFactor + pay_indicator_image.width + 8
-                    radius: 9999
-                    color: "#DCFCE7"
-                    Image {
-                        id: pay_indicator_image
-                        source: "qrc:/images/Tick.svg"
-                        width: 16*scaleFactor
-                        height: 16*scaleFactor
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.left: parent.left
-                        anchors.leftMargin: 16*scaleFactor
-                    }
-                    Text {
-                        id: pay_indicator_text
-                        text: qsTr("Оплачено")
-                        color: "#166534"
-                        font.weight: 500
-                        font.pixelSize: 16*scaleFactor
-                        lineHeight: 1
-                        anchors.left: pay_indicator_image.right
-                        anchors.leftMargin: 8
-                        anchors.top: parent.top
-                        anchors.topMargin: 8*scaleFactor
-                        font.family: "fonts/Roboto_SemiCondensed-Medium.ttf"
-                        // verticalAlignment: Text.AlignVCenter
-                    }
-                }
+                       }
+                       RowLayout {
+                           id: client_content
+                           anchors {
+                               left: parent.left
+                               leftMargin: 24
+                               top: parent.top
+                               right: parent.right
+                               rightMargin: 24
+                               }
+                           height: client_content_data.height + 48*scaleFactor
+                           ColumnLayout {
+                               id: client_content_data
+                               spacing: 5*scaleFactor
+                               Text {
+                                   id: client_content_data_name
+                                  text: modelData.full_name || qsTr("Имя не указано")
+                                   font.weight: 500
+                                   font.pixelSize: 20*scaleFactor
+                                   font.family: "fonts/Roboto_SemiCondensed-Medium.ttf"
+                                   color: Theme.isDarkTheme ? "#FFFFFF" : "#000000"
+                                   Behavior on color {
+                                       ColorAnimation {
+                                           duration: 250
+                                       }
+                                   }
+                               }
+                               Text {
+                                   id: client_content_data_company
+                                    text: modelData.inn ? ("ИНН: " + modelData.inn) : qsTr("ИНН не указан")
+                                   font.weight: 400
+                                   font.pixelSize: 16*scaleFactor
+                                   lineHeight: 1.2
+                                   color: Theme.isDarkTheme ? "#9CA3AF" : "#4B5563"
+                                   Behavior on color {
+                                       ColorAnimation {
+                                           duration: 250
+                                       }
+                                   }
+                                   font.family: "fonts/Roboto_Condensed-Regular.ttf"
+                               }
+                               RowLayout {
+                                   id:client_content_data_filter_list
+                                   height: client_content_data_filter_item.height
+                                   Rectangle {
+                                       id: client_content_data_filter_item
+                                       implicitHeight: client_content_data_filter_item_filter.height+ 5*scaleFactor
+                                       implicitWidth: client_content_data_filter_item_filter.width + 20*scaleFactor
+                                       radius: 9999
+                                       color: "#DBEAFE"
+                                       Text {
+                                           id: client_content_data_filter_item_filter
+                                           text:modelData.activity_type ? modelData.activity_type : qsTr("Вид деятельности не указан")
+                                           font.weight: 500
+                                           font.pixelSize: 12*scaleFactor
+                                           anchors.top: parent.top
+                                           anchors.topMargin: 2*scaleFactor
+                                           anchors.left: parent.left
+                                           anchors.leftMargin: 10*scaleFactor
+                                           color: "#1E40AF"
+                                           font.family: "fonts/Roboto_SemiCondensed-Medium.ttf"
+                                       }
+                                   }
+                               }
+                           }
+                           Rectangle {
+                               id: pay_indicator
+                               //anchors.right: client_content.right
+                               Layout.alignment: Qt.AlignRight
+                               // Вместо height и width писать те же свойства, но implicit
+                               implicitHeight: pay_indicator_text.height + 16*scaleFactor
+                               implicitWidth: pay_indicator_text.width + 30*scaleFactor + pay_indicator_image.width + 8
+                               radius: 9999
+                               color:(modelData.individualaccount>0) ? "#DCFCE7" : "#FEE2E2"
+                               Image {
+                                    id: pay_indicator_image
+                                    source: "qrc:/images/Tick.svg"
+                                    width: 16*scaleFactor
+                                    height: 16*scaleFactor
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.left: parent.left
+                                    anchors.leftMargin: 16*scaleFactor
+                                    opacity: (modelData.individualaccount>0) ? 1 : 0
+                               }
+                               Image {
+                                    id: pay_indicator_image2
+                                    source: "qrc:/images/Warning.svg"
+                                    width: 16*scaleFactor
+                                    height: 16*scaleFactor
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.left: parent.left
+                                    anchors.leftMargin: 16*scaleFactor
+                                    opacity: (modelData.individualaccount>0) ? 0 : 1
+                               }
+                               Text {
+                                   id: pay_indicator_text
+                                   text:(modelData.individualaccount>0) ? qsTr("Оплачено") : qsTr("Просрочено")
+                                   color: (modelData.individualaccount>0) ? "#166534" : "#991B1B"
+                                   font.weight: 500
+                                   font.pixelSize: 16*scaleFactor
+                                   lineHeight: 1
+                                   anchors.left: pay_indicator_image.right
+                                   anchors.leftMargin: 8
+                                   anchors.top: parent.top
+                                   anchors.topMargin: 8*scaleFactor
+                                   font.family: "fonts/Roboto_SemiCondensed-Medium.ttf"
+                                   // verticalAlignment: Text.AlignVCenter
+                               }
+                           }
+
+                       }
+                   }
+        ScrollBar.vertical: ScrollBar {
+            policy: ScrollBar.AsNeeded
+            width: 5
+        }
+
+        Label {
+            anchors.centerIn: parent
+            text: qsTr("Пока нет клиентов")
+            visible: clientsListView.count === 0
+            font.pixelSize: 16 * scaleFactor
+            color: Theme.isDarkTheme ? "#9CA3AF" : "#4B5563"
+        }
+        Component.onCompleted: {
+            if (DatabaseManager.isAuthenticated) {
+                DatabaseManager.getClients(DatabaseManager.currentUserId)
             }
         }
     }
-
 
     ActionMenu {
         id:action_menu
@@ -546,7 +561,6 @@ Rectangle {
         anchors.top: parent.top
         anchors.rightMargin: 32
         anchors.topMargin: 58
-
     }
 
     FormExit {
@@ -554,3 +568,4 @@ Rectangle {
          visible:false
     }
 }
+

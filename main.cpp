@@ -67,6 +67,8 @@ int main(int argc, char *argv[])
     qmlRegisterSingletonInstance<DatabaseManager>(
         "CRM.Database", 1, 0, "DatabaseManager", dbManager);
 
+    qmlRegisterType<DatabaseManager>("CRM.Database", 1, 1, "DatabaseManager");
+
     // Обработка завершения приложения
     QObject::connect(&app, &QGuiApplication::aboutToQuit, [dbManager]() {
         qDebug() << "Application is quitting, performing cleanup...";

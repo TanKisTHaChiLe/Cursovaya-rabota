@@ -72,6 +72,8 @@ else()
     message(FATAL_ERROR "PostgreSQL not found! Проверьте путь: ${PG_ROOT}")
 endif()
 
+# find_package(Qt6 COMPONENTS Core Sql Network Core5Compat REQUIRED)  # Добавьте Core5Compat
+
 # 3. Настройка Qt проекта
 qt_standard_project_setup(REQUIRES 6.5)
 
@@ -97,6 +99,7 @@ qt_add_qml_module(appCRM-system
         Components/AuthorisationForm2.qml
         Components/AddClient.qml
     RESOURCES resources.qrc
+    SOURCES clientmodel.h clientmodel.cpp
 )
 
 # 6. Подключение библиотек

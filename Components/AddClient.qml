@@ -771,7 +771,7 @@ Rectangle {
                             //     processSelectedOption(selectedOption);
                             // }
                             delegate: Item {
-                                id:delegate
+                                id: delegate1
                                width: comboBox.width
                                height: 40 // Высота каждого элемента
 
