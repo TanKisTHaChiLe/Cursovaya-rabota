@@ -444,9 +444,57 @@ QVariantList DatabaseManager::getClients(int userId)
 
         clientsList.append(clientData);
     }
-    qDebug() << "Clients list:" << clientsList;
+    //qDebug() << "Clients list:" << clientsList;
     return clientsList;
 }
+
+QVariantList DatabaseManager::filterClients(QVariantList clientsList,QString fil1, QString fil2)
+{
+    QVariantList filterClientsList;
+    if(clientsList.length()==0 || (fil1.length()==0 && fil2.length()==0)) return clientsList;
+    int a = 0;
+    if(fil2 == "Оплачено") {
+        a = 1;
+       // qDebug()<<true;
+    }
+    if(fil2.length() == 0) a = -1;
+    for (const QVariant client : clientsList) {
+        QVariantMap clientMap = client.toMap();
+        QString taxSystem = clientMap["tax_system"].toString();
+        int payment_type = clientMap["individualaccount"].toInt();
+        //qDebug()<<taxSystem<<" "<<fil1<<" "<<a;
+        if(fil1.length()!=0 && fil2.length()!=0){
+            if(fil1 == taxSystem && ((a==1 && payment_type>=a) || (a==0 && payment_type<=a))){
+
+                filterClientsList.append(client);
+            }
+        }
+        else{
+            if(fil1 == taxSystem || (a==1 && payment_type>=a) || (a==0 && payment_type<=a)){
+
+                filterClientsList.append(client);
+            }
+        }
+
+        //qDebug() << "Client:" << payment_type << "Tax system:" << taxSystem;
+    }
+    //clientsFilterd();
+   // qDebug()<<filterClientsList;
+     return filterClientsList;
+}
+
+// QString DatabaseManager::getSaveFileName(const QString &defaultName)
+// {
+//     QString path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+//     if (!defaultName.isEmpty()) {
+//         path += "/" + defaultName;
+//     }
+
+//     return QFileDialog::getSaveFileName(nullptr,
+//                                         "Сохранить CSV",
+//                                         path,
+//                                         "CSV Files (*.csv)");
+// }
 
 int DatabaseManager::currentUserId() const
 {

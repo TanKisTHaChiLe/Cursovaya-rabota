@@ -1,9 +1,12 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import QtCore
 import AppTheme 1.0
 import com.example 1.0
 import CRM.Database 1.0
+import com.company.exporter 1.0
+import QtQuick.Dialogs
 import "."
 import ".."
 
@@ -14,6 +17,13 @@ Rectangle {
     property real scaleFactor: Math.min(width / originalWidth, height / originalHeight)
     property color body_Background: Theme.isDarkTheme ? "#111827" : "#F2F4F4"
     property color block_Background: Theme.isDarkTheme ? "#1F2937" :  "#FFFFFF"
+
+    property string taxation : ""
+    property string payment: ""
+
+    property string exportStatus: ""
+        property color exportStatusColor: "green"
+
     color: body_Background
     Behavior on color {
         ColorAnimation {
@@ -28,6 +38,9 @@ Rectangle {
             }
             if(formExit.visible){
                 formExit.visible = false
+            }
+            if(formFilter.visible){
+                formFilter.visible = false
             }
         }
     }
@@ -111,66 +124,148 @@ Rectangle {
             anchors.topMargin: 24*scaleFactor
             anchors.left:parent.left
             anchors.leftMargin: 24
+
+
+
+
+
             Rectangle {
-                id: table_button
-                height:table_button_text.height + 16*scaleFactor
-                width: table_button_text.width +32*scaleFactor + table_button_image.width + 7
-                border.color: Theme.isDarkTheme ? "#110000" : "#000000"
-                border.width: 1
-                radius: 4
-                color: Theme.isDarkTheme ? "#131927" : "#000000"
-                function calculateButtonColor() {
-                    buttonColor = Theme.isDarkTheme ? "#131927" : "#000000"
-                    hoverColor= Theme.isDarkTheme ? "#4B5563" :"#1F2937"
-                    color = buttonColor
-                }
-                property color buttonColor
-                property color hoverColor
-                Component.onCompleted: calculateButtonColor()
 
-               Connections {
-                   target: Theme // Слушаем изменения в синглтоне!
-                   function onIsDarkThemeChanged(){ table_button.calculateButtonColor()}
-               }
 
-                Behavior on color {
-                    ColorAnimation { duration: 250 }
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onEntered: {
-                        parent.color = parent.hoverColor
+
+                    id: table_button
+                    height:table_button_text.height + 16*scaleFactor
+                    width: table_button_text.width +32*scaleFactor + table_button_image.width + 7
+                    border.color: Theme.isDarkTheme ? "#110000" : "#000000"
+                    border.width: 1
+                    radius: 4
+                    color: Theme.isDarkTheme ? "#131927" : "#000000"
+                    function calculateButtonColor() {
+                        buttonColor = Theme.isDarkTheme ? "#131927" : "#000000"
+                        hoverColor= Theme.isDarkTheme ? "#4B5563" :"#1F2937"
+                        color = buttonColor
                     }
-                    onExited: {
-                        parent.color = parent.buttonColor
+                    property color buttonColor
+                    property color hoverColor
+                    Component.onCompleted: calculateButtonColor()
+
+                   Connections {
+                       target: Theme // Слушаем изменения в синглтоне!
+                       function onIsDarkThemeChanged(){ table_button.calculateButtonColor()}
+                   }
+
+                    Behavior on color {
+                        ColorAnimation { duration: 250 }
                     }
-                }
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onEntered: {
+                            parent.color = parent.hoverColor
+                        }
+                        onExited: {
+                            parent.color = parent.buttonColor
+                        }
+                        onClicked: {
+                                    // Установим имя файла по умолчанию
+                            //var docsPath = StandardPath.writableLocation(StandardPath.DocumentsLocation)
+
+                           saveDialog.open()
+                        }
+                    }
 
 
-                Image {
-                    id: table_button_image
-                    source: "qrc:/images/Table.svg"
-                    width: 16*scaleFactor
-                    height: 14*scaleFactor
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: parent.left;
-                    anchors.leftMargin: 16*scaleFactor
-                }
+                    Image {
+                        id: table_button_image
+                        source: "qrc:/images/Table.svg"
+                        width: 16*scaleFactor
+                        height: 14*scaleFactor
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left: parent.left;
+                        anchors.leftMargin: 16*scaleFactor
+                    }
 
-                Text {
-                    id: table_button_text
-                    text: qsTr("Сформировать таблицу")
-                    font.weight: 400
-                    font.pixelSize: 16*scaleFactor
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left:table_button_image.right
-                    anchors.leftMargin: 7
-                    color: "#FFFFFF"
-                    font.family: "fonts/Roboto_Condensed-Regular.ttf"
+                    Text {
+                        id: table_button_text
+                        text: qsTr("Сформировать таблицу")
+                        font.weight: 400
+                        font.pixelSize: 16*scaleFactor
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left:table_button_image.right
+                        anchors.leftMargin: 7
+                        color: "#FFFFFF"
+                        font.family: "fonts/Roboto_Condensed-Regular.ttf"
+                    }
+
+
+
+            }
+            ExcelExporter {
+                id: excelExporter
+            }
+
+            FileDialog {
+                id: saveDialog
+                title: "Сохранить CSV файл"
+                fileMode: FileDialog.SaveFile
+                nameFilters: ["CSV Files (*.csv)"]
+                defaultSuffix: "csv"
+                // Component.onCompleted: {
+                //     console.log(localFilePath)
+                //     // Должен вывести ["exportToCSV", ...]
+                // }
+                onAccepted: {
+                    //console.log(selectedFile)
+                    var localFilePath = selectedFile.toString().replace(/^file:\/\/\//, "");
+                    console.log(localFilePath)
+                     var result = excelExporter.exportToCSV(DatabaseManager.filterClients(DatabaseManager.getClients(DatabaseManager.currentUserId),taxation,payment), localFilePath)
+                     //ExcelExporter.exportToCSV(clientsListView.model, selectedFile)
+                    if (result.success) {
+                        exportStatus.text = "Файл сохранен: " + result.fileName
+                        exportStatus.color = "green"
+                    } else {
+                        exportStatus.text = "Ошибка: " + (result.error || "Неизвестная ошибка")
+                        exportStatus.color = "red"
+                    }
+                    // exportTimer.start()
+                    // var clients = []
+                    //        for (var i = 0; i < clientsListView.count; ++i) {
+                    //            var client = clientsListView.model.get(i)
+                    //            console.log("Клиент", i, ":", JSON.stringify(client)) // Отладка
+                    //            clients.push(client)
+                    //        }
+
+                    //        // 2. Проверяем массив перед экспортом
+                    //        if (clients.length === 0) {
+                    //            console.error("Ошибка: массив clients пуст!")
+                    //            return
+                    //        }
+
+                    //        // 3. Вызываем экспорт
+                    //        var result = ExcelExporter.exportToCSV(clients, selectedFile)
+                    //        console.log("Результат экспорта:", JSON.stringify(result))
                 }
             }
+
+            Label {
+                id: exportStatus
+                 z:1000
+                anchors {
+                    horizontalCenter: parent.horizontalCenter
+                    bottom: parent.bottom
+                    bottomMargin: 20
+                }
+            }
+
+            Timer {
+                id: exportTimer
+                interval: 3000
+                //z:1000
+                onTriggered: exportStatus.text = ""
+            }
+
+
             Rectangle {
                 id: push_client_button
                 height:push_client_button_text.height + 16*scaleFactor
@@ -274,6 +369,9 @@ Rectangle {
                     onExited: {
                         parent.color = parent.buttonColor
                     }
+                    onClicked:{
+                        formFilter.visible = !formFilter.visible
+                    }
                 }
 
                 Image {
@@ -325,6 +423,196 @@ Rectangle {
                     font.family: "fonts/Roboto_Condensed-Regular.ttf"
                 }
             }
+            ApplicationWindow {
+                id: formFilter
+                width: layout_Container.implicitWidth + 40 * scaleFactor
+                height: layout_Container.implicitHeight + 40 * scaleFactor
+
+                background: Rectangle {
+                    color: block_Background
+                    radius: 8 * scaleFactor
+                    border.color: Theme.isDarkTheme ? "#4B5563" : "#D1D5DB"
+                    border.width: 1
+                    layer.enabled: true
+
+                }
+
+                ColumnLayout {
+                    id: layout_Container
+                    anchors.fill: parent
+                    anchors.margins: 20 * scaleFactor
+                    spacing: 16 * scaleFactor
+
+                    CheckBox {
+                        id: nalog_filter
+                        text: "Налоговая система"
+                        font.pixelSize: 16 * scaleFactor
+                        font.family: "fonts/Roboto_Condensed-Regular.ttf"
+                        Layout.fillWidth: true
+                        onCheckedChanged: {
+                            if(checked){
+                                taxation= comboBox1.currentText
+                                 //console.log("Новый выбор (onActivated):", taxation)
+                            }
+                            else{
+                                 taxation= ""
+                                //console.log("Новый выбор (onActivated):", taxation)
+                            }
+                        }
+                    }
+
+                    ComboBox {
+                        id: comboBox1
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 42 * scaleFactor
+                        model: ["ОСНО", "УСН 6%", "УСН доходы-расходы", "ЕСХН"]
+
+                        enabled: nalog_filter.checked
+                        currentIndex: 0
+
+                        background: Rectangle {
+                            border.color: Theme.isDarkTheme ? "#4B5563" : "#D1D5DB"
+                            color: enabled ? (Theme.isDarkTheme ? "#374151" : "#FFFFFF") : (Theme.isDarkTheme ? "#1F2937" : "#F3F4F6")
+                            radius: 6 * scaleFactor
+                        }
+
+                        contentItem: Text {
+                            text: comboBox1.displayText
+                            font: comboBox1.font
+                            color: enabled ? (Theme.isDarkTheme ? "#E5E7EB" : "#111827") : (Theme.isDarkTheme ? "#6B7280" : "#9CA3AF")
+                            verticalAlignment: Text.AlignVCenter
+                            leftPadding: 12 * scaleFactor
+                            rightPadding: 30 * scaleFactor
+                        }
+
+                        delegate: ItemDelegate {
+                            width: comboBox1.width
+                            height: 40 * scaleFactor
+                            highlighted: comboBox1.highlightedIndex === index
+
+                            contentItem: Text {
+                                text: modelData
+                                color: highlighted ? (Theme.isDarkTheme ? "#FFFFFF" : "#111827") : (Theme.isDarkTheme ? "#E5E7EB" : "#374151")
+                                font.pixelSize: 14 * scaleFactor
+                                elide: Text.ElideRight
+                                verticalAlignment: Text.AlignVCenter
+                                leftPadding: 12 * scaleFactor
+                            }
+
+                            background: Rectangle {
+                                color: Theme.isDarkTheme ? "#4B5563" : "#E5E7EB"
+                                radius: 4 * scaleFactor
+                            }
+                        }
+
+
+                        onActivated: (index) => {
+                            taxation= model[index]
+                            //console.log("Новый выбор (onActivated):", taxation)
+                        }
+                    }
+                    CheckBox {
+                        id: nalog_filter2
+                        text: "Оплата"
+                        font.pixelSize: 16 * scaleFactor
+                        font.family: "fonts/Roboto_Condensed-Regular.ttf"
+                        Layout.fillWidth: true
+                        onCheckedChanged: {
+                            if(checked){
+                                payment= comboBox12.currentText
+                                 //console.log("Новый выбор (onActivated):", payment)
+                            }
+                            else{
+                                 payment= ""
+                                //console.log("Новый выбор (onActivated):", payment)
+                            }
+                        }
+                    }
+
+                    ComboBox {
+                        id: comboBox12
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 42 * scaleFactor
+                        model: ["Оплачено", "Просрочено"]
+                        enabled: nalog_filter2.checked
+                        currentIndex: 0
+
+                        background: Rectangle {
+                            border.color: Theme.isDarkTheme ? "#4B5563" : "#D1D5DB"
+                            color: enabled ? (Theme.isDarkTheme ? "#374151" : "#FFFFFF") : (Theme.isDarkTheme ? "#1F2937" : "#F3F4F6")
+                            radius: 6 * scaleFactor
+                        }
+
+                        contentItem: Text {
+                            text: comboBox12.displayText
+                            font: comboBox12.font
+                            color: enabled ? (Theme.isDarkTheme ? "#E5E7EB" : "#111827") : (Theme.isDarkTheme ? "#6B7280" : "#9CA3AF")
+                            verticalAlignment: Text.AlignVCenter
+                            leftPadding: 12 * scaleFactor
+                            rightPadding: 30 * scaleFactor
+                        }
+
+                        delegate: ItemDelegate {
+                            width: comboBox12.width
+                            height: 40 * scaleFactor
+                            highlighted: comboBox12.highlightedIndex === index
+
+                            contentItem: Text {
+                                text: modelData
+                                color: highlighted ? (Theme.isDarkTheme ? "#FFFFFF" : "#111827") : (Theme.isDarkTheme ? "#E5E7EB" : "#374151")
+                                font.pixelSize: 14 * scaleFactor
+                                elide: Text.ElideRight
+                                verticalAlignment: Text.AlignVCenter
+                                leftPadding: 12 * scaleFactor
+                            }
+
+                            background: Rectangle {
+                                color: Theme.isDarkTheme ? "#4B5563" : "#E5E7EB"
+                                radius: 4 * scaleFactor
+                            }
+                        }
+                        onActivated: (index) => {
+                            payment= model[index]
+                            //console.log("Новый выбор (onActivated):", payment)
+                        }
+
+                    }
+                    Button {
+                        id: addButton
+                        text: "Добавить"
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 42 * scaleFactor
+                        //enabled: nalog_filter.checked || nalog_filter2.checked
+                        font.pixelSize: 16 * scaleFactor
+
+                        background: Rectangle {
+                            radius: 6 * scaleFactor
+                            color: addButton.enabled ? (Theme.isDarkTheme ? "#4B5563" : "#D1D5DB") : (Theme.isDarkTheme ? "#1F2937" : "#F3F4F6")
+                        }
+
+                        contentItem: Text {
+                            text: addButton.text
+                            font: addButton.font
+                            color: addButton.enabled ? (Theme.isDarkTheme ? "#E5E7EB" : "#111827") : (Theme.isDarkTheme ? "#6B7280" : "#9CA3AF")
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        Component.onCompleted: {
+                            console.log("Методы DatabaseManager:", JSON.stringify(Object.keys(DatabaseManager)))
+                            // Должен вывести ["exportToCSV", ...]
+                        }
+                        onClicked: {
+                            clientsListView.model = DatabaseManager.filterClients(DatabaseManager.getClients(DatabaseManager.currentUserId),taxation,payment);
+                            // taxation= ""
+                            //  payment= "";
+                            formFilter.close()
+                            // Здесь можно добавить логику обработки
+                        }
+                    }
+                }
+
+            }
+
         }
         Rectangle {
             id: form_search_client
@@ -375,7 +663,11 @@ Rectangle {
         onClientsUpdated: {
                 // Здесь вы можете вызвать метод для обновления списка клиентов
                 clientsListView.model = DatabaseManager.getClients(DatabaseManager.currentUserId);
+            console.log(DatabaseManager.getClients(DatabaseManager.currentUserId))
             }
+        // onclientsFilterd: {
+        //     clientsListView.model = DatabaseManager.filterClients( clientsListView.model);
+        // }
     }
 
     ListView {
@@ -567,5 +859,7 @@ Rectangle {
         id: formExit
          visible:false
     }
+
+
 }
 

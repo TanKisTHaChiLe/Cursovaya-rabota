@@ -9,6 +9,8 @@
 #include <QProcess>
 #include <QThread>
 #include <QSettings>
+// #include <QApplication>
+// #include <QFileDialog>
 class DatabaseManager : public QObject
 {
     Q_OBJECT
@@ -34,7 +36,10 @@ public:
     // Методы клиентов
     // Q_INVOKABLE bool addClient(int userId, const QVariantMap &clientData);
     Q_INVOKABLE QVariantList getClients(int userId);
+    Q_INVOKABLE QVariantList filterClients(QVariantList mas,QString fil1, QString fil2);
     Q_INVOKABLE bool saveClient(const QVariantMap &clientData);
+
+    // Q_INVOKABLE QString getSaveFileName(const QString &defaultName = "");
 
 signals:
     void connectionChanged(bool connected);
@@ -46,7 +51,7 @@ signals:
     void connectionError(const QString &errorMessage);
     void clientSaved(bool success);  // Новый сигнал
     void clientsUpdated();
-
+     //void clientsFilterd();
 public slots:
     void forceLogout();
     void reconnect();

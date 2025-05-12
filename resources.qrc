@@ -26,5 +26,6 @@
         <file>images/DiscretLightTheme.svg</file>
         <file>images/EndDarkTheme.svg</file>
         <file>images/EndLightTheme.svg</file>
+        <file>Components/ActionMenu.qml</file>
     </qresource>
 </RCC>
